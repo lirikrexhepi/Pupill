@@ -143,7 +143,7 @@
 
         if ($stmt->execute()) {
             $_SESSION['success'] = "Account created successfully.";
-            header('Location: ../index.php');
+            header('Location: ../index.html');
         } else {
             $_SESSION['error'] = "Error creating account. Please try again.";
             header('Location: ../signupar.php');

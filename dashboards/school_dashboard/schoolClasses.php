@@ -48,9 +48,16 @@ $dataClasses = $stmt->fetchAll();
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.6/index.global.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth'
+            });
+            calendar.render();
+        });
+    </script>
 </head>
 
 <body class="overflow-hidden" style="font-family: 'Inter'">
@@ -181,13 +188,11 @@ $dataClasses = $stmt->fetchAll();
 
 
                 <!--The calendar Div-->
+                <div class="flex w-1/4 h-full py-5 border-l border-gray-200 justify-center text-sm">
+                    <div style="font-family: 'Inter'" class="w-full h-2/6 border-slate-100 px-4 text-sm" id='calendar'></div>
+                </div>
 
             </div>
-
-            <div class="flex items-center w-1/4 h-full py-5 border-l border-gray-200 justify-center">
-                <div id="calendar"></div>
-            </div>
-
         </div>
     </div>
 

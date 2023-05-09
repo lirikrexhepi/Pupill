@@ -27,7 +27,7 @@ $data = $stmt->fetch();
 
 
 
-//Select the classes
+//Select the classes where User is the HeadT eacher
 $sql = "SELECT * FROM classes WHERE class_headTeacher = ?  ";
 $stmt = $con->prepare($sql);
 $stmt->bindParam(1, $_SESSION['id']);
@@ -35,6 +35,24 @@ $stmt->execute();
 $dataClasses = $stmt->fetchAll();
 
 $numClasses = $stmt->rowCount();
+
+
+
+//Select the classes where the user is a teacher
+$sql = "SELECT * FROM class_subjects WHERE teacher_id = ?  ";
+$stmt = $con->prepare($sql);
+$stmt->bindParam(1, $_SESSION['id']);
+$stmt->execute();
+$dataSubjectTeacher = $stmt->fetchAll();
+
+
+//Select the classes where the user is a teacher
+$sql = "SELECT * FROM classes WHERE class_id = ? ";
+$stmt = $con->prepare($sql);
+$stmt->bindParam(1, $dataSubjectTeacher[0]['class_id']);
+$stmt->execute();
+$dataClassTeacher = $stmt->fetchAll();
+
 
 
 //Select the school where the teacher works
@@ -48,7 +66,7 @@ $dataSchool = $stmt->fetch();
 if (isset($_POST['submit_class'])) {
     $class_name = $_POST['class-name'];
     $class_subjects = isset($_POST['class_subjects']) ? implode(',', $_POST['class_subjects']) : '';
-    $class_school = $_POST['class-subject'];
+    $class_school = $data['school_id'];
     $class_headTeacher = $_SESSION['id'];
     $class_code = $_POST['class-code']; // Assuming you have the generateRandomString function
     $created_at = date('Y-m-d H:i:s');
@@ -100,9 +118,16 @@ if (isset($_POST['submit_class'])) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.6/index.global.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth'
+            });
+            calendar.render();
+        });
+    </script>
 </head>
 
 <body style="font-family: 'Inter'">
@@ -250,7 +275,7 @@ if (isset($_POST['submit_class'])) {
                                     <div class="flex flex-col ml-3 items-center">
                                         <div class="flex flex-col justify-evenly">
                                             <p class="text-lg sm:text-sm font-semibold text-white mr-2"><?= $class['class_name'] ?></p>
-                                            <p class="text-sm font-normal text-white"><?= $class['class_code'] ?></p>
+                                            <p class="text-sm font-normal text-white">Class Code: <?= $class['class_code'] ?></p>
                                         </div>
                                     </div>
                                 </li>
@@ -270,22 +295,22 @@ if (isset($_POST['submit_class'])) {
                         </div>
                         <!--The foreach loop to display the classes-->
                         <div class="h-80 overflow-y-auto text-black h-fill">
-                            <?php if ($dataClasses) : ?>
+                            <?php if ($dataClassTeacher) : ?>
                                 <?php $counter = 0; ?>
                                 <div class="flex flex-row flex-wrap">
-                                    <?php foreach ($dataClasses as $class) : ?>
+                                    <?php foreach ($dataClassTeacher as $ClassTeacher) : ?>
                                         <?php if ($counter % 4 === 0 && $counter !== 0) : ?>
                                 </div>
                                 <div class="flex flex-row flex-wrap">
                                 <?php endif; ?>
-                                <li onclick="window.location.href='class.php?class_id=<?= $class['class_id'] ?>'" class="py-4 flex w-1/4 border-2 rounded-md bg-blue-950 text-white shadow-md h-fill items-center cursor-pointer ">
+                                <li onclick="window.location.href='class.php?class_id=<?= $ClassTeacher['class_id'] ?>'" class="py-4 flex w-1/4 border-2 rounded-md bg-blue-950 text-white shadow-md h-fill items-center cursor-pointer ">
                                     <span class="text-3xl">
                                         <i class="fas fa-chalkboard-teacher text-2xl mx-5 sm:text-md text-white"></i>
                                     </span>
                                     <div class="flex flex-col ml-3 items-center">
                                         <div class="flex flex-col justify-evenly">
-                                            <p class="text-lg sm:text-sm font-semibold text-white mr-2"><?= $class['class_name'] ?></p>
-                                            <p class="text-sm font-normal text-white"><?= $class['class_code'] ?></p>
+                                            <p class="text-lg sm:text-sm font-semibold text-white mr-2"><?= $ClassTeacher['class_name'] ?></p>
+                                            <p class="text-sm font-normal text-white">Class Code: <?= $ClassTeacher['class_code'] ?></p>
                                         </div>
                                     </div>
                                 </li>
@@ -305,9 +330,8 @@ if (isset($_POST['submit_class'])) {
 
 
                 <!--The calendar Div-->
-                <div class="flex items-center w-1/4 h-full py-5 border-l border-gray-200 justify-center">
-                    <div id="calendar"></div>
-
+                <div class="flex w-1/4 h-full py-5 border-l border-gray-200 justify-center text-sm">
+                    <div style="font-family: 'Inter'" class="w-full h-4/6 border-slate-100 px-4 text-sm" id='calendar'></div>
                 </div>
             </div>
 
@@ -363,7 +387,7 @@ if (isset($_POST['submit_class'])) {
                 <div class="flex flex-row justify-between">
                     <div class="mb-4 w-2/4 mr-2">
                         <label class="block text-gray-700 font-medium mb-2" for="class-subject">Class School*</label>
-                        <input required class="border border-gray-400 p-2 w-full rounded-md" value="<?= $dataSchool['school_name'] ?>" type="text" name="class-subject" id="class-subject" readonly>
+                        <input required class="border border-gray-400 p-2 w-full rounded-md" value="<?= $dataSchool['school_name'] ?>" type="text" name="class-school" id="class-school" readonly>
                     </div>
                     <div class="mb-4 w-2/4 ml-2">
                         <label class="block text-gray-700 font-medium mb-2 " for="class-subject">Class Code
@@ -374,7 +398,7 @@ if (isset($_POST['submit_class'])) {
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-2" for="class-subject">Class Head Teacher*</label>
-                    <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" value="<?= $data['teacher_name'] . ' ' . $data['teacher_surname']; ?>" name="class-subject" id="class-subject" readonly>
+                    <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" value="<?= $data['teacher_name'] . ' ' . $data['teacher_surname']; ?>" name="class-headTeacher" id="class-subject" readonly>
                 </div>
                 <div class="flex justify-center mt-28">
                     <button type="submit" name="submit_class" class=" w-1/2 bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out">Create</button>

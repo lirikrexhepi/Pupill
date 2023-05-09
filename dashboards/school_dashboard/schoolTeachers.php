@@ -29,6 +29,49 @@ $stmt->bindParam(1, $_SESSION['id']);
 $stmt->execute();
 $dataTeachers = $stmt->fetchAll();
 
+
+// Remove teacher from database
+if (isset($_POST['remove_teacher'])) {
+    $teacher_id = $_POST['teacher-id'];
+
+    // Select teacher by ID
+    $sql = "SELECT * FROM teachers WHERE teacher_id = ?";
+    $stmt = $con->prepare($sql);
+    $stmt->bindParam(1, $teacher_id);
+    $stmt->execute();
+    $teacher = $stmt->fetch();
+
+    // Update school_id value to null
+    $sql = "UPDATE teachers SET school_id = NULL WHERE teacher_id = ?";
+    $stmt = $con->prepare($sql);
+    $stmt->bindParam(1, $teacher_id);
+    $stmt->execute();
+
+    // Confirmation message
+    header("Location: schoolTeachers.php");
+}
+
+// Update teacher information
+if (isset($_POST['update_teacher'])) {
+    $teacher_id = $_POST['teacher-id'];
+    $teacher_name = $_POST['teacher-name'];
+    $teacher_surname = $_POST['teacher-surname'];
+    $teacher_subject = $_POST['teacher-subject'];
+
+    // Update teacher information
+    $sql = "UPDATE teachers SET teacher_name = ?, teacher_surname = ?, teacher_subject = ? WHERE teacher_id = ?";
+    $stmt = $con->prepare($sql);
+    $stmt->bindParam(1, $teacher_name);
+    $stmt->bindParam(2, $teacher_surname);
+    $stmt->bindParam(3, $teacher_subject);
+    $stmt->bindParam(4, $teacher_id);
+    $stmt->execute();
+
+    // Confirmation message
+    header("Location: schoolTeachers.php");
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -48,9 +91,16 @@ $dataTeachers = $stmt->fetchAll();
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.6/index.global.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth'
+            });
+            calendar.render();
+        });
+    </script>
 </head>
 
 <body class="overflow-hidden" style="font-family: 'Inter'">
@@ -151,11 +201,11 @@ $dataTeachers = $stmt->fetchAll();
                             <p class="font-medium text-lg">Teachers</p>
                         </div>
                         <!--The foreach loop to display the teachers-->
-                        <div class="overflow-y-auto text-black h-96">
+                        <div class=" overflow-y-auto text-black h-96">
                             <?php if ($dataTeachers) : ?>
-                                <ul class="my-custom-class divide-y divide-gray-200 h-full flex flex-row border-b-2">
+                                <ul class="divide-y divide-gray-200 h-full flex flex-row border-b-2">
                                     <?php foreach ($dataTeachers as $teacher) : ?>
-                                        <li class="py-4 flex w-1/4 border-2 rounded-md h-3/6 items-center" onclick="openModal('<?= $teacher['teacher_name'] ?>', '<?= $teacher['teacher_surname'] ?>', '<?= $teacher['teacher_subject'] ?>')">
+                                        <li class="py-4 flex w-1/4 border-2 rounded-md h-3/6 items-center" onclick="openModal('<?= $teacher['teacher_name'] ?>', '<?= $teacher['teacher_surname'] ?>', '<?= $teacher['teacher_email'] ?>', '<?= $teacher['teacher_subject'] ?>', '<?= $teacher['teacher_id'] ?>')">
                                             <span class="text-3xl">
                                                 <i class="fas fa-chalkboard-teacher mx-5 text-blue-500"></i>
                                             </span>
@@ -174,7 +224,6 @@ $dataTeachers = $stmt->fetchAll();
                                 <p class="text-black p-4">No classes found</p>
                             <?php endif; ?>
                         </div>
-
                     </div>
 
 
@@ -184,12 +233,12 @@ $dataTeachers = $stmt->fetchAll();
 
                 <!--The calendar Div-->
 
-            </div>
+                <div class="flex w-1/4 h-full py-5 border-l border-gray-200 justify-center text-sm">
+                    <div style="font-family: 'Inter'" class="w-full h-4/6 border-slate-100 px-4 text-sm" id='calendar'></div>
+                </div>
 
-            <div class="flex items-center w-1/4 h-full py-5 border-l border-gray-200 justify-center">
-                <div id="calendar"></div>
-            </div>
 
+            </div>
         </div>
     </div>
 
@@ -227,16 +276,20 @@ $dataTeachers = $stmt->fetchAll();
                 <div class="flex flex-row justify-between">
                     <div class="mb-4 w-2/4 mr-2">
                         <label class="block text-gray-700 font-medium mb-2" for="class-subject">Teacher Id*</label>
-                        <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="teacher-subject" id="teacher-id" readonly>
+                        <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="teacher-id" id="teacher-id" readonly>
                     </div>
                     <div class="mb-4 w-2/4">
                         <label class="block text-gray-700 font-medium mb-2" for="class-subject">Teacher Subject*</label>
-                        <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="teacher-email" id="teacher-subject">
+                        <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="teacher-subject" id="teacher-subject">
+
                     </div>
                 </div>
-                <div class="flex justify-center mt-32">
-                    <button type="submit" name="submit_class" class=" w-1/2 bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out">Create</button>
-                    <button type="button" onclick="closeModal()" class=" w-1/2 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out ml-4">Cancel</button>
+                <div class="flex flex-col justify-center mt-28">
+                    <div class="flex flex-row mb-6">
+                        <button type="submit" name="remove_teacher" class=" w-4/12  bg-red-500 text-white font-medium py-2 px-4 mr-6 rounded-md hover:bg-red-600 transition duration-300 ease-in-out">Remove</button>
+                        <button type="submit" name="update_teacher" class=" w-8/12 bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out">Update</button>
+                    </div>
+                    <button type="button" onclick="closeModal()" class=" w-1/1 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out">Cancel</button>
                 </div>
             </form>
         </div>
@@ -248,46 +301,28 @@ $dataTeachers = $stmt->fetchAll();
 
 
     <script>
-        // Select all <li> elements under the teachers' list
-        const teacherElements = document.querySelectorAll('.my-custom-class li');
-
-        // Add a click event listener to each <li>
-        teacherElements.forEach(li => {
-            li.addEventListener('click', () => {
-                // Get the teacher data from the clicked <li>
-                const teacherName = li.querySelector('p:nth-of-type(1)').textContent;
-                const teacherSurname = li.querySelector('p:nth-of-type(2)').textContent;
-                const teacherSubject = li.querySelector('p:nth-of-type(3)').textContent.split(': ')[1];
-                const teacherId = li.querySelector('p:nth-of-type(4)').textContent.split(': ')[1];
-
-                // Set the values of the input fields in the form
-                document.getElementById('teacher-name').value = teacherName;
-                document.getElementById('teacher-surname').value = teacherSurname;
-                document.getElementById('teacher-subject').value = teacherSubject;
-                document.getElementById('teacher-id').value = teacherId;
-            });
-        });
-
-        // Open the modal when called
-        function openModal(teacherName, teacherSurname, teacherSubject) {
+        function openModal(name, surname, email, subject, id) {
             var modal = document.getElementById('teacherInfo-modal');
             modal.style.opacity = "0";
             modal.classList.remove('hidden');
+            document.getElementById('teacher-name').value = name;
+            document.getElementById('teacher-surname').value = surname;
+            document.getElementById('teacher-email').value = email;
+            document.getElementById('teacher-subject').value = subject;
+            document.getElementById('teacher-id').value = id;
             var fadeEffect = setInterval(function() {
                 if (!modal.style.opacity) {
                     modal.style.opacity = 0;
                 }
                 if (modal.style.opacity < 1) {
-                    $
                     modal.style.opacity = parseFloat(modal.style.opacity) + 0.1;
                 } else {
                     clearInterval(fadeEffect);
                 }
             }, 20);
-
         }
 
-        // Close the modal when called
+
         function closeModal() {
             var modal = document.getElementById('teacherInfo-modal');
             modal.style.opacity = "1";
@@ -302,21 +337,10 @@ $dataTeachers = $stmt->fetchAll();
         }
 
 
-
         function showDropdown() {
             var dropdown = document.querySelector(".absolute");
             dropdown.classList.toggle("hidden");
         }
-
-
-
-        $(document).ready(function() {
-            $('#calendar').fullCalendar({
-                defaultDate: moment(),
-                editable: false,
-                eventLimit: true, // allow "more" link when too many events
-            });
-        });
     </script>
 
 
