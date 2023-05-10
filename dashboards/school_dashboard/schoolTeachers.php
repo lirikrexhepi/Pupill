@@ -90,6 +90,8 @@ if (isset($_POST['update_teacher'])) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <link rel="icon" href="../../resources/icons/appLogo.svg" type="image/png">
+
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.6/index.global.min.js'></script>
     <script>
@@ -195,22 +197,25 @@ if (isset($_POST['update_teacher'])) {
                     </div>
 
 
-                    <!--Show students list-->
+                    <!--Show teachers list-->
                     <div class="w-fill h-11/12 mx-10 my-10 rounded-md bg-white shadow-md flex flex-col">
                         <div class="border-b-2 w-full h-14 flex pl-5 items-center justify-between flex flex-row">
                             <p class="font-medium text-lg">Teachers</p>
                         </div>
                         <!--The foreach loop to display the teachers-->
-                        <div class=" overflow-y-auto text-black h-96">
+                        <div class="overflow-y-auto text-black h-96">
                             <?php if ($dataTeachers) : ?>
-                                <ul class="divide-y divide-gray-200 h-full flex flex-row border-b-2">
-                                    <?php foreach ($dataTeachers as $teacher) : ?>
+                                <?php $count = 0; ?>
+                                <?php foreach ($dataTeachers as $teacher) : ?>
+                                    <?php if ($count % 4 == 0) : ?>
+                                        <div class="flex flex-wrap">
+                                        <?php endif; ?>
                                         <li class="py-4 flex w-1/4 border-2 rounded-md h-3/6 items-center" onclick="openModal('<?= $teacher['teacher_name'] ?>', '<?= $teacher['teacher_surname'] ?>', '<?= $teacher['teacher_email'] ?>', '<?= $teacher['teacher_subject'] ?>', '<?= $teacher['teacher_id'] ?>')">
                                             <span class="text-3xl">
                                                 <i class="fas fa-chalkboard-teacher mx-5 text-blue-500"></i>
                                             </span>
                                             <div class="flex flex-col ml-3 items-center">
-                                                <div class=" flex flex-row justify-evenly">
+                                                <div class="flex flex-row justify-evenly">
                                                     <p class="text-lg font-semibold text-black mr-2"><?= $teacher['teacher_name'] ?></p>
                                                     <p class="text-lg font-semibold text-black"><?= $teacher['teacher_surname'] ?></p>
                                                 </div>
@@ -218,12 +223,16 @@ if (isset($_POST['update_teacher'])) {
                                                 <p class="text-sm font-medium text-black">Teacher Id: <?= $teacher['teacher_id'] ?></p>
                                             </div>
                                         </li>
-                                    <?php endforeach; ?>
-                                </ul>
+                                        <?php $count++; ?>
+                                        <?php if ($count % 4 == 0 || $count == count($dataTeachers)) : ?>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             <?php else : ?>
-                                <p class="text-black p-4">No classes found</p>
+                                <p class="text-black p-4">No teachers found</p>
                             <?php endif; ?>
                         </div>
+
                     </div>
 
 

@@ -47,6 +47,8 @@ $dataClasses = $stmt->fetchAll();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <link rel="icon" href="../../resources/icons/appLogo.svg" type="image/png">
+
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.6/index.global.min.js'></script>
     <script>
@@ -160,10 +162,17 @@ $dataClasses = $stmt->fetchAll();
                         <!--The foreach loop to display the teachers-->
                         <div class=" overflow-y-auto text-black h-96">
                             <?php if ($dataClasses) : ?>
-                                <ul class="divide-y divide-gray-200 h-full flex flex-row border-b-2">
-                                    <?php foreach ($dataClasses as $class) : ?>
-
-                                        <li class="py-4 flex w-1/4 border-2 rounded-md h-3/6 items-center">
+                                <?php $count = 0; ?>
+                                <?php foreach ($dataClasses as $class) : ?>
+                                    <?php if ($count % 4 == 0) { // create new column after every 4 classes 
+                                    ?>
+                                        <?php if ($count > 0) { // close previous column 
+                                        ?>
+                                            </ul>
+                                        <?php } ?>
+                                        <ul class="divide-y divide-gray-200 h-1/4 flex flex-row border-b-2 w-full">
+                                        <?php } ?>
+                                        <li onclick="window.location.href='schoolEditClass.php?class_name=<?= $class['class_name'] ?>&class_id=<?= $class['class_id'] ?>'" class="py-4 flex w-1/4 border-2 rounded-md h-full items-center cursor-pointer">
                                             <span class="text-3xl">
                                                 <i class="fas fa-chalkboard-teacher mx-5 text-blue-500"></i>
                                             </span>
@@ -174,12 +183,18 @@ $dataClasses = $stmt->fetchAll();
                                                 <p class="text-sm font-medium text-black">Class Code: <?= $class['class_code'] ?></p>
                                             </div>
                                         </li>
+
+                                        <?php $count++; ?>
                                     <?php endforeach; ?>
-                                </ul>
-                            <?php else : ?>
-                                <p class="text-black p-4">No classes found</p>
-                            <?php endif; ?>
+                                    <?php if ($count > 0) { // close last column 
+                                    ?>
+                                        </ul>
+                                    <?php } ?>
+                                <?php else : ?>
+                                    <p class="text-black p-4">No classes found</p>
+                                <?php endif; ?>
                         </div>
+
                     </div>
 
 

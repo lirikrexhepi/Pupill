@@ -79,6 +79,8 @@ $dataSchool = $stmt->fetch();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <link rel="icon" href="../../resources/icons/appLogo.svg" type="image/png">
+
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.6/index.global.min.js'></script>
     <script>
@@ -133,8 +135,8 @@ $dataSchool = $stmt->fetch();
             </div>
 
             <!--The actual dashboard content-->
-            <div class="flex flex-row w-full  overflow-scroll overflow-x-hidden">
-                <div class="flex flex-col w-4/5 h-screen bg-slate-50">
+            <div class="flex flex-row w-full overflow-scroll overflow-x-hidden">
+                <div class="flex flex-col w-5/5 h-screen bg-slate-50">
                     <!--The "Welcome to [School]" div-->
                     <div class="flex flex-row w-fill items-center mt-10">
                         <div class="w-9/12 h-60 ml-10 mr-4 rounded-md bg-white shadow-md p-7 flex flex-row">
@@ -213,58 +215,65 @@ $dataSchool = $stmt->fetch();
 
 
                     <!--Show classes list-->
-                    <!--Show classes list-->
                     <div class="w-fill h-screen mx-10 mb-20 rounded-md bg-white shadow-md flex flex-col">
                         <div class="border-b-2 w-full h-14 flex pl-5 items-center">
                             <p class="font-medium text-lg">Children Grades</p>
                         </div>
-                        <!--The foreach loop to display the classes-->
                         <div class=" overflow-y-auto text-black h-fill">
                             <?php if ($dataSubjects) : ?>
                                 <ul class="divide-y divide-gray-200 h-full">
-                                    <div class="flex flex-wrap">
-                                        <?php foreach (array_slice($dataSubjects, 0, 4) as $subject) :
-                                            $teacher_id = $subject['teacher_id'];
-                                            $stmt = $con->prepare("SELECT teacher_name, teacher_surname FROM teachers WHERE teacher_id = ?");
-                                            $stmt->bindParam(1, $teacher_id);
-                                            $stmt->execute();
-                                            $teacher = $stmt->fetch();
-                                            if ($teacher) {
-                                                $teacher_nameNsurname = $teacher['teacher_name'] . ' ' . $teacher['teacher_surname'];
-                                            } else {
-                                                $teacher_name = "No teacher found";
+                                    <?php $count = 0; ?>
+                                    <?php foreach ($dataSubjects as $subject) :
+                                        $teacher_id = $subject['teacher_id'];
+                                        $stmt = $con->prepare("SELECT teacher_name, teacher_surname FROM teachers WHERE teacher_id = ?");
+                                        $stmt->bindParam(1, $teacher_id);
+                                        $stmt->execute();
+                                        $teacher = $stmt->fetch();
+                                        if ($teacher) {
+                                            $teacher_nameNsurname = $teacher['teacher_name'] . ' ' . $teacher['teacher_surname'];
+                                        } else {
+                                            $teacher_name = "No teacher found";
+                                        }
+
+                                        if ($count % 4 == 0) { // create new column after every 4 rows
+                                            if ($count > 0) { // close previous column
+                                                echo '</div>';
                                             }
-
-                                        ?>
-                                            <li onclick="openSubjectModal('<?= $subject['subject'] ?>', '<?= $teacher_nameNsurname ?>')" class="py-4 flex w-1/4 border-2 rounded-md h-20 items-center">
-                                                <span class="text-3xl">
-                                                    <i class="fas fa-chalkboard-teacher mx-5 text-blue-500"></i>
-                                                </span>
-                                                <div class="flex flex-col ml-3 items-center">
-                                                    <div class=" flex flex-col justify-evenly">
-                                                        <p class="text-lg font-semibold text-black mr-2"><?= $subject['subject'] ?></p>
-                                                        <p class="text-sm font-light text-black">Class teacher: <?= $teacher_nameNsurname ?></p>
-
-                                                    </div>
+                                            echo '<div class="flex flex-wrap">';
+                                        }
+                                    ?>
+                                        <li onclick="openSubjectModal('<?= $subject['subject'] ?>', '<?= $teacher_id ?>',  '<?= $dataChildren['student_id'] ?>')" class="py-4 flex w-1/4 border-2 rounded-md h-20 items-center">
+                                            <span class="text-3xl">
+                                                <i class="fas fa-chalkboard-teacher mx-5 text-blue-500"></i>
+                                            </span>
+                                            <div class="flex flex-col ml-3 items-center">
+                                                <div class=" flex flex-col justify-evenly">
+                                                    <p class="text-lg font-semibold text-black mr-2"><?= $subject['subject'] ?></p>
+                                                    <p class="text-sm font-light text-black">Class teacher: <?= $teacher_nameNsurname ?></p>
                                                 </div>
-                                            </li>
-                                        <?php endforeach; ?>
-                                    </div>
+                                            </div>
+                                        </li>
+                                        <?php $count++; ?>
+                                    <?php endforeach; ?>
                                 </ul>
+                                <?php if ($count > 0) { // close last column
+                                    echo '</div>';
+                                } ?>
                             <?php else : ?>
                                 <p class="text-black p-4">No subjects found</p>
                             <?php endif; ?>
                         </div>
                     </div>
 
+
                 </div>
 
 
-                <!--The calendar Div-->
-                <div class="flex w-1/5 h-5/6 py-5 border-l border-gray-200 justify-center text-sm">
-                    <div style="font-family: 'Inter'" class="w-full h-94 border-slate-100 px-4 text-sm" id='calendar'></div>
-                </div>
 
+            </div>
+
+            <div class="flex w-1/5 h-[50vh] py-5 border-l border-gray-200 justify-center text-sm">
+                <div style="font-family: 'Inter'" class="w-full h-94 border-slate-100 px-4 text-sm" id='calendar'></div>
             </div>
         </div>
     </div>
@@ -319,12 +328,37 @@ $dataSchool = $stmt->fetch();
         }
 
         //------------------------------------------Open Subject---------------------------------------
-        function openSubjectModal(subject, teacher_id) {
+        function openSubjectModal(subject, teacher_id, student_id) {
             var modal = document.getElementById('subject-grades-modal');
             modal.style.opacity = "0";
             modal.classList.remove('hidden');
             document.getElementById('subjectTitle_Modal').innerText = subject;
             document.getElementById('subjectTeacher_Modal').value = teacher_id;
+
+            // Fetch grades and teacher's name for the subject and student
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        var grades = data.grades;
+                        var teacherName = data.teacher_name;
+                        var teacherSurname = data.teacher_surname;
+
+                        document.getElementById('subjectGrade_Modal').value = grades ? grades.grade_value : "N/A";
+                        document.getElementById('subjectPercentage_Modal').value = grades ? grades.grade_percentage + "%" : "N/A";
+                        document.getElementById('subject-gradedAt_Modal').value = grades ? grades.grade_date : "N/A";
+                        document.getElementById('subjectTeacher_Modal').value = teacherName + " " + teacherSurname;
+                    } else {
+                        // Handle the error case
+                        console.error(xhr.status);
+                    }
+                }
+            };
+            xhr.open('GET', 'get_grades.php?subject=' + subject + '&student_id=' + student_id + '&teacher_id=' + teacher_id, true);
+            xhr.send();
+
+
             var fadeEffect = setInterval(function() {
                 if (!modal.style.opacity) {
                     modal.style.opacity = 0;
@@ -336,6 +370,7 @@ $dataSchool = $stmt->fetch();
                 }
             }, 20);
         }
+
 
         function closeSubjectModal() {
             var modal = document.getElementById('subject-grades-modal');
