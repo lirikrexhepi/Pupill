@@ -369,17 +369,6 @@ if (isset($_POST['assign_grade'])) {
                         <p class="self-center mt-20">No students in class</p>
                     <?php endif; ?>
 
-
-
-
-
-
-
-
-
-
-
-
                 </div>
 
 
@@ -440,9 +429,14 @@ if (isset($_POST['assign_grade'])) {
                         <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" value="<?= $data['teacher_name'] . ' ' . $data['teacher_surname']; ?>" name="class-headTeacher" id="class-subject" readonly>
                     </div>
                 </div>
-                <div class="flex justify-center ">
-                    <button type="submit" name="assign_teachers" class=" w-1/2 bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out">Assign</button>
-                    <button type="button" onclick="closeModal()" class=" w-1/2 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out ml-4">Cancel</button>
+                <div class="flex justify-center flex-col">
+                    <div class="flex flex-row justify-between mb-4">
+                        <!--The Submit Button-->
+                        <button type="submit" name="assign_teachers" class=" w-1/2 bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out">Assign</button>
+                        <!--The Button to open the teachers list modal-->
+                        <button onclick="openTeachersList()" name="view_teachers" class=" w-1/2 bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out ml-4">View Teachers</button>
+                    </div>
+                    <button type="button" onclick="closeModal()" class=" w-1/1 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out ">Cancel</button>
                 </div>
             </form>
         </div>
@@ -554,6 +548,67 @@ if (isset($_POST['assign_grade'])) {
 
 
 
+
+
+    <!--View teachers Id-->
+    <div id="teachers-list-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center hidden">
+        <?php
+        // Select all the teachers in that school so that we can show their id, so that the teachers can assign other teachers in their classes
+        $sql = "SELECT * FROM teachers WHERE school_id = ?";
+        $stmt = $con->prepare($sql);
+        $stmt->bindParam(1, $data['school_id']);
+        $stmt->execute();
+        $teachers = $stmt->fetchAll(); // Fetch all teachers
+        ?>
+        <div class="bg-white rounded-lg p-6 w-2/5 h-3/4">
+            <div class="mb-10 flex flex-row items-center">
+                <i class="text-3xl fas fa-chalkboard-teacher mx-5 text-blue-500"></i>
+                <div class="flex flex-col mt-2">
+                    <h2 class="text-2xl font-bold">
+                        Teachers Id
+                    </h2>
+                    <h2 class="mt-1 text-gray-800">
+                        Here is a comprehensive list of all the teachers in your school, including their respective IDs. You will utilize these IDs to assign teachers to specific subjects in your class.
+                    </h2>
+                </div>
+            </div>
+
+            <div>
+                <div class="overflow-x-auto">
+                    <div class="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
+                        <table class="min-w-full leading-normal">
+                            <thead>
+                                <tr>
+                                    <th class="px-5 py-3 border-b-2 border-gray-800 text-left text-xs font-semibold text-gray-700 h-20 uppercase tracking-wider">Teachers</th>
+                                    <th class="px-5 py-3 border-b-2 border-gray-800 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
+                                    <th class="px-5 py-3 border-b-2 border-gray-800 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Subject</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($teachers as $teacher) : ?>
+                                    <tr>
+                                        <td class="px-5 py-3 border-b border-gray-200 bg-white text-sm font-medium"><?php echo $teacher['teacher_name']; ?></td>
+                                        <td class="px-5 py-3 border-b border-gray-200 bg-white text-sm font-medium"><?php echo $teacher['teacher_id']; ?></td>
+                                        <td class="px-5 py-3 border-b border-gray-200 bg-white text-sm font-medium"><?php echo $teacher['teacher_subject']; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-14">
+                <button onclick="openModal()" name=" view_teachers" class=" w-1/2 bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out ml-4">Go Back</button>
+                <button type="button" onclick="closeTeachersList()" class=" w-1/2 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out ml-4">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
     <script>
         function showDropdown() {
             var dropdown = document.querySelector(".absolute");
@@ -564,8 +619,15 @@ if (isset($_POST['assign_grade'])) {
         //------------------------------------------------The code to open the popup to asign teachers--------------------------------------------------------------
         function openModal() {
             var modal = document.getElementById('create-class-modal');
-            modal.style.opacity = "0";
+            var teachersListModal = document.getElementById('teachers-list-modal');
+
+            if (!teachersListModal.classList.contains('hidden')) {
+                teachersListModal.classList.add('hidden'); // Hide the teachers list modal
+            }
+
             modal.classList.remove('hidden');
+            modal.classList.add('opacity-0', 'transition', 'opacity-100');
+
             var fadeEffect = setInterval(function() {
                 if (!modal.style.opacity) {
                     modal.style.opacity = 0;
@@ -578,17 +640,26 @@ if (isset($_POST['assign_grade'])) {
             }, 20);
         }
 
+
+
         function closeModal() {
             var modal = document.getElementById('create-class-modal');
-            modal.style.opacity = "1";
-            var fadeEffect = setInterval(function() {
-                if (modal.style.opacity > 0) {
-                    modal.style.opacity -= 0.1;
-                } else {
-                    modal.classList.add('hidden');
-                    clearInterval(fadeEffect);
-                }
-            }, 20);
+            var teachersListModal = document.getElementById('teachers-list-modal');
+
+            if (!teachersListModal.classList.contains('hidden')) {
+                // Teachers list modal is already open, close it instead
+                closeTeachersList();
+            } else {
+                modal.style.opacity = "1";
+                var fadeEffect = setInterval(function() {
+                    if (modal.style.opacity > 0) {
+                        modal.style.opacity -= 0.1;
+                    } else {
+                        modal.classList.add('hidden');
+                        clearInterval(fadeEffect);
+                    }
+                }, 20);
+            }
         }
 
         //-------------------------------------------The code to open the popup to asign teachers------------------------------------------------------------------
@@ -662,7 +733,42 @@ if (isset($_POST['assign_grade'])) {
         }
 
 
-        //Generate Class Code
+        //Open the teachers list modal
+        function openTeachersList() {
+            var modal = document.getElementById('teachers-list-modal');
+            var createClassModal = document.getElementById('create-class-modal');
+
+            if (!createClassModal.classList.contains('hidden')) {
+                // Create class modal is already open, close it instead
+                closeModal();
+            }
+
+            modal.style.opacity = "0";
+            modal.classList.remove('hidden');
+            var fadeEffect = setInterval(function() {
+                if (!modal.style.opacity) {
+                    modal.style.opacity = 0;
+                }
+                if (modal.style.opacity < 1) {
+                    modal.style.opacity = parseFloat(modal.style.opacity) + 0.1;
+                } else {
+                    clearInterval(fadeEffect);
+                }
+            }, 20);
+        }
+
+        function closeTeachersList() {
+            var modal = document.getElementById('teachers-list-modal');
+            modal.style.opacity = "1";
+            var fadeEffect = setInterval(function() {
+                if (modal.style.opacity > 0) {
+                    modal.style.opacity -= 0.1;
+                } else {
+                    modal.classList.add('hidden');
+                    clearInterval(fadeEffect);
+                }
+            }, 20);
+        }
     </script>
 
 
