@@ -219,7 +219,7 @@ if (isset($_POST['update_teacher'])) {
                                                     <p class="text-lg font-semibold text-black mr-2"><?= $teacher['teacher_name'] ?></p>
                                                     <p class="text-lg font-semibold text-black"><?= $teacher['teacher_surname'] ?></p>
                                                 </div>
-                                                <p class="text-sm font-medium text-black">Subject: <?= $teacher['teacher_subject'] ?></p>
+                                                <p class="text-sm font-medium text-black"> <?= $teacher['teacher_subject'] ?></p>
                                                 <p class="text-sm font-medium text-black">Teacher Id: <?= $teacher['teacher_id'] ?></p>
                                             </div>
                                         </li>

@@ -89,7 +89,6 @@ $dataClass = $stmt->fetch();
                                 <span>Classes</span>
                             </div>
                             <div class="bg-blue-500 h-8 w-1 rounded-l-lg "></div>
-
                         </li>
                         <li style="font-family: 'Inter', sans-serif;" class="flex flex-row items-center font-regular pl-16 py-2 my-3 text-md cursor-pointer hover:text-blue-600 transition-colors duration-300">
                             <i class="far fa-calendar mr-3"></i>

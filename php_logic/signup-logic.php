@@ -24,7 +24,7 @@
 
         if ($stmt->execute()) {
             $_SESSION['success'] = "School created successfully.";
-            header('Location: ../index.php');
+            header('Location: ../login.php');
         } else {
             $_SESSION['error'] = "Error creating school. Please try again.";
             header('Location: ../signup.php');
@@ -63,7 +63,7 @@
 
             if ($stmt->execute()) {
                 $_SESSION['success'] = "Account created successfully.";
-                header('Location: ../index.php');
+                header('Location: ../login.php');
             } else {
                 $_SESSION['error'] = "Error creating account. Please try again.";
                 header('Location: ../signup.php');
@@ -108,7 +108,7 @@
 
             if ($stmt->execute()) {
                 $_SESSION['success'] = "Account created successfully.";
-                header('Location: ../index.php');
+                header('Location: ../login.php');
             } else {
                 $_SESSION['error'] = "Error creating account. Please try again.";
                 header('Location: ../signupar.php');
@@ -143,7 +143,7 @@
 
         if ($stmt->execute()) {
             $_SESSION['success'] = "Account created successfully.";
-            header('Location: ../index.html');
+            header('Location: ../login.php');
         } else {
             $_SESSION['error'] = "Error creating account. Please try again.";
             header('Location: ../signupar.php');

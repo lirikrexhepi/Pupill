@@ -189,7 +189,7 @@ $dataTeachers = $stmt->fetchAll();
                                 <p class="text-sm font-light mt-2"> Access your classes and stay on top of assignments, materials, and important information. With our platform, managing your classes is a breeze.</p>
                             </div>
                             <div>
-                                <button class="text-white font-medium rounded-md py-1 px-4 bg-blue-900 transition duration-300 ease-in-out">Explore Classes ➜</button>
+                                <button onclick="window.location.href='schoolClasses.php'" class="text-white font-medium rounded-md py-1 px-4 bg-blue-900 transition duration-300 ease-in-out">Explore Classes ➜</button>
                             </div>
                         </div>
 

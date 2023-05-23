@@ -221,9 +221,9 @@ if (isset($_POST['link_parent'])) {
                     <span class="ml-10 font-bold text-xl text-gray-700">Class <?= !empty($class['class_name']) ? $class['class_name'] : '' ?></span>
 
                 </div>
-                <div class="flex flex-row w-4/12">
+                <div class="flex flex-row w-5/12">
                     <?php if (empty($data['student_parentCode'])) { ?>
-                        <button onclick="openModal()" name="join_class" class="text-white bg-blue-500 mr-2 font-medium rounded-md py-1 px-4 border-2 border-solid border-blue-500 hover:border-blue-600 hover:bg-blue-600 transition duration-300 ease-in-out">Link Parent +</button>
+                        <button onclick="openModal()" name="join_class" class="text-white bg-blue-500 mr-2 font-medium rounded-md py-1 px-4  hover:bg-blue-600 transition duration-300 ease-in-out">Link Parent +</button>
                     <?php } ?>
                     <?php if (empty($data['student_class'])) { ?>
                         <form method="Post">
@@ -369,11 +369,12 @@ if (isset($_POST['link_parent'])) {
                 <div class="flex flex-row">
                     <div class="mb-4 w-1/2 mr-4">
                         <label class="block text-gray-700 font-medium mb-2" for="class-name">Grade</label>
-                        <?php if ($grades !== false) : ?>
+                        <?php if (!empty($grades)) : ?>
                             <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="teacher-identifier" id="subjectGrade_Modal" value="<?= $grades[0]['grade_value'] ?>" readonly>
                         <?php else : ?>
                             <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="teacher-identifier" id="subjectGrade_Modal" value="N/A" readonly>
                         <?php endif; ?>
+
                     </div>
                     <div class="mb-4 w-1/2">
                         <label class="block text-gray-700 font-medium mb-2" for="class-name">Percentage</label>

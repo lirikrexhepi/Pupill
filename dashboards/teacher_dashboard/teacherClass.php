@@ -160,7 +160,6 @@ if (isset($_POST['submit_class'])) {
                                 <span>Classes</span>
                             </div>
                             <div class="bg-blue-500 h-8 w-1 rounded-l-lg "></div>
-
                         </li>
                         <li style="font-family: 'Inter', sans-serif;" class="flex flex-row items-center font-regular pl-16 py-2 my-3 text-md cursor-pointer hover:text-blue-600 transition-colors duration-300">
                             <i class="far fa-calendar mr-3"></i>
@@ -361,7 +360,7 @@ if (isset($_POST['submit_class'])) {
             <form method="post">
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-2" for="class-name">Class Name*</label>
-                    <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="class-name" id="class-name">
+                    <input autocomplete="off" required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="class-name" id="class-name">
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-2 h-2/6" for="class-subject">Class Subjects

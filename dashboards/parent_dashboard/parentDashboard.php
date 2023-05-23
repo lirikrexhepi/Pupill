@@ -29,7 +29,7 @@ $stmt->bindParam(1, $data['parent_identifier']);
 $stmt->execute();
 $dataChildren = $stmt->fetch();
 
-$classId = $dataChildren['student_class'];
+$classId = isset($dataChildren['student_class']) ? $dataChildren['student_class'] : "n/a";
 
 //Select the classes
 $sql = "SELECT * FROM classes WHERE class_id = ? ";
@@ -83,15 +83,6 @@ $dataSchool = $stmt->fetch();
 
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.6/index.global.min.js'></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth'
-            });
-            calendar.render();
-        });
-    </script>
 </head>
 
 <body style="font-family: 'Inter'">
@@ -175,9 +166,18 @@ $dataSchool = $stmt->fetch();
                                 <i class="fas fas fa-user-graduate mx-5 text-blue-500"></i>
                                 <div class="flex flex-col">
                                     <p class="text-md font-light">Your Children: </p>
-                                    <p class="text-md font-medium"><?= $dataChildren['student_name'] . ' ' . $dataChildren['student_surname'] ?></p>
-
+                                    <p class="text-md font-medium">
+                                        <?php
+                                        if (empty($dataChildren['student_name']) && empty($dataChildren['student_surname'])) {
+                                            echo 'n/a';
+                                        } else {
+                                            echo isset($dataChildren['student_name']) ? $dataChildren['student_name'] : '';
+                                            echo isset($dataChildren['student_surname']) ? ' ' . $dataChildren['student_surname'] : '';
+                                        }
+                                        ?>
+                                    </p>
                                 </div>
+
                             </div>
                         </div>
 
@@ -186,8 +186,9 @@ $dataSchool = $stmt->fetch();
                                 <i class="fas fa-chalkboard-teacher mx-5 text-blue-500"></i>
                                 <div class="flex flex-col">
                                     <p class="text-md font-light">Your Children Class</p>
-                                    <p class="text-md font-medium"> <?= $dataClass['class_name'] ?></p>
+                                    <p class="text-md font-medium"><?= isset($dataClass['class_name']) ? $dataClass['class_name'] : 'n/a' ?></p>
                                 </div>
+
                             </div>
                         </div>
 
@@ -196,8 +197,18 @@ $dataSchool = $stmt->fetch();
                                 <i class="fas fa-user-tie mx-5 text-blue-500"></i>
                                 <div class="flex flex-col">
                                     <p class="text-md font-light">Your Children's Head Teacher</p>
-                                    <p class="text-md font-medium"> <?= $dataTeacher['teacher_name'] . ' ' . $dataTeacher['teacher_surname'] ?></p>
+                                    <p class="text-md font-medium">
+                                        <?php
+                                        if (empty($dataTeacher['teacher_name']) && empty($dataTeacher['teacher_surname'])) {
+                                            echo 'n/a';
+                                        } else {
+                                            echo isset($dataTeacher['teacher_name']) ? $dataTeacher['teacher_name'] : '';
+                                            echo isset($dataTeacher['teacher_surname']) ? ' ' . $dataTeacher['teacher_surname'] : '';
+                                        }
+                                        ?>
+                                    </p>
                                 </div>
+
                             </div>
                         </div>
 
@@ -206,7 +217,7 @@ $dataSchool = $stmt->fetch();
                                 <i class="fas fa-university mx-5 text-blue-500"></i>
                                 <div class="flex flex-col">
                                     <p class="text-md font-light">Your Children's School</p>
-                                    <p class="text-md font-medium"><?= $dataSchool['school_name'] ?></p>
+                                    <p class="text-md font-medium"><?= isset($dataSchool['school_name']) ? $dataSchool['school_name'] : 'n/a' ?></p>
                                 </div>
                             </div>
                         </div>
@@ -270,10 +281,6 @@ $dataSchool = $stmt->fetch();
 
 
 
-            </div>
-
-            <div class="flex w-1/5 h-[50vh] py-5 border-l border-gray-200 justify-center text-sm">
-                <div style="font-family: 'Inter'" class="w-full h-94 border-slate-100 px-4 text-sm" id='calendar'></div>
             </div>
         </div>
     </div>

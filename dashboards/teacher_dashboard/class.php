@@ -241,6 +241,12 @@ if (isset($_POST['assign_grade'])) {
                             <i class="far fa-calendar mr-3"></i>
                             <span class="hover:text-blue-500">Calendar</span>
                         </li>
+                        <div class="w-fill flex items-center justify-center">
+                            <li onclick="window.location.href='assignments.php?classId=<?= urlencode($dataClass['class_id']) ?>'" style="font-family: 'Inter', sans-serif;" class="mt-10 w-3/5 flex flx-row items-center justify-center text-white bg-blue-500 font-medium rounded-md py-1 px-4 border-2 border-solid border-blue-500 hover:border-blue-600 hover:bg-blue-600 transition duration-300 ease-in-out cursor-pointer">
+                                <i class="far fa-bookmark mr-4"></i>
+                                <span>Assignments</span>
+                            </li>
+                        </div>
                     </ul>
                 </div>
 
@@ -317,12 +323,10 @@ if (isset($_POST['assign_grade'])) {
 
 
                     <!---------------------------------------------------The class table------------------------------------------------->
-
                     <?php if ($numStudents > 0) : ?>
                         <div class="container mx-auto">
                             <div class="px-4 py-8">
                                 <h2 class="text-2xl font-semibold mb-8">Class Grades</h2>
-
                                 <div class="overflow-x-auto">
                                     <div class="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
                                         <table class="min-w-full leading-normal">
@@ -341,21 +345,22 @@ if (isset($_POST['assign_grade'])) {
                                                         <?php foreach ($dataClassSubjects as $subject) : ?>
                                                             <?php
                                                             $grade = '';
-                                                            foreach ($grades as $g) {
-                                                                if ($g['student_id'] == $student['student_id'] && $g['subject'] == $subject['subject']) {
-                                                                    $grade = $g['grade_value'];
+                                                            $gradePercentage = '';
+                                                            $gradeDate = '';
+                                                            $g = null;
+                                                            foreach ($grades as $gradeData) {
+                                                                if ($gradeData['student_id'] == $student['student_id'] && $gradeData['subject'] == $subject['subject']) {
+                                                                    $grade = $gradeData['grade_value'];
+                                                                    $gradePercentage = $gradeData['grade_percentage'];
+                                                                    $gradeDate = $gradeData['grade_date'];
+                                                                    $g = $gradeData;
                                                                     break;
                                                                 }
                                                             }
                                                             ?>
-                                                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm font-medium <?php if ($subject['subject'] == $data['teacher_subject']) echo 'editable'; ?>" <?php if ($subject['subject'] == $data['teacher_subject']) : ?> onclick="openGrade('<?= $subject['subject'] ?>', '<?= $student['student_id'] ?>', '<?= $student['student_name'] . ' ' . $student['student_surname'] ?>', '<?= $g['grade_value'] ?>', '<?= $g['grade_percentage'] ?>', '<?= $g['grade_date'] ?>')" <?php endif; ?> name="<?php echo 'grades[' . $student['student_id'] . '][' . $subject['subject'] . ']'; ?>">
+                                                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm font-medium <?php if ($subject['subject'] == $data['teacher_subject']) echo 'editable'; ?>" <?php if ($subject['subject'] == $data['teacher_subject']) : ?> onclick="openGrade('<?= $subject['subject'] ?>', '<?= $student['student_id'] ?>', '<?= $student['student_name'] . ' ' . $student['student_surname'] ?>', '<?= $grade != '' ? $grade : 'n/a'; ?>', '<?= $gradePercentage != '' ? $gradePercentage : 'n/a'; ?>', '<?= $gradeDate != '' ? $gradeDate : 'n/a'; ?>')" <?php endif; ?> name="<?php echo 'grades[' . $student['student_id'] . '][' . $subject['subject'] . ']'; ?>">
                                                                 <?php echo $grade != '' ? $grade : 'n/a'; ?>
                                                             </td>
-
-
-
-
-
                                                         <?php endforeach; ?>
                                                     </tr>
                                                 <?php endforeach; ?>
@@ -368,6 +373,9 @@ if (isset($_POST['assign_grade'])) {
                     <?php else : ?>
                         <p class="self-center mt-20">No students in class</p>
                     <?php endif; ?>
+
+
+
 
                 </div>
 
@@ -462,24 +470,24 @@ if (isset($_POST['assign_grade'])) {
                 <div>
                     <div class="mb-4">
                         <label class="block text-gray-700 font-medium mb-2" for="homework_title">Homework Title*</label>
-                        <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="homework_title" id="homework_title">
+                        <input autocomplete="off" required class="border border-gray-400 p-2 w-full rounded-md" type="text" name="homework_title" id="homework_title">
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-gray-700 font-medium mb-2" for="homework_description">Description</label>
-                        <textarea required class="border border-gray-400 p-2 w-full rounded-md h-32 overflow-y-scroll" style="resize:none;" name="homework_description" id="homework_description"></textarea>
+                        <textarea autocomplete="off" required class="border border-gray-400 p-2 w-full rounded-md h-32 overflow-y-scroll" style="resize:none;" name="homework_description" id="homework_description"></textarea>
                     </div>
 
 
                     <div class="flex flex-row justify-between">
                         <div class="mb-4 w-2/4 ">
                             <label class=" block text-gray-700 font-medium mb-2" for="homework_teacher">Teacher*</label>
-                            <input required class="border border-gray-400 p-2 w-full rounded-md" type="text" value="<?= $data['teacher_name'] . ' ' . $data['teacher_surname']; ?>" name="class-subject" id="class-subject" readonly>
+                            <input autocomplete="off" required class="border border-gray-400 p-2 w-full rounded-md" type="text" value="<?= $data['teacher_name'] . ' ' . $data['teacher_surname']; ?>" name="class-subject" id="class-subject" readonly>
                         </div>
 
                         <div class="mb-4 w-2/4 ml-2">
                             <label class="block text-gray-700 font-medium mb-2 " for="homework_subject">Homework Subject</label>
-                            <input required class="border text-black border-gray-400 p-2 w-full px-4 rounded-md" value="<?= $data['teacher_subject'] ?>" type="text" name="homework_subject" id="homework_subject" readonly>
+                            <input autocomplete="off" required class="border text-black border-gray-400 p-2 w-full px-4 rounded-md" value="<?= $data['teacher_subject'] ?>" type="text" name="homework_subject" id="homework_subject" readonly>
                         </div>
                     </div>
 

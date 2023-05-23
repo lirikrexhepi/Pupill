@@ -100,7 +100,7 @@ $dataClassSubjects = $stmt->fetchAll();
     </script>
 </head>
 
-<body class="overflow-y-hidden" style="font-family: 'Inter'">
+<body class="overflow-x-hidden" style="font-family: 'Inter'">
 
     <div class="flex flex-row">
         <div class="flex w-1/6 h-screen flex-col">
